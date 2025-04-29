@@ -1,6 +1,1 @@
-streamlit
-scikit-learn
-pandas
-numpy
-joblib
-requests
+Streamlit_app
