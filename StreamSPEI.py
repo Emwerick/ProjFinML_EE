@@ -1,28 +1,36 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-
 import streamlit as st
 import joblib
+import requests
 import numpy as np
 import pandas as pd
+from io import BytesIO
 
 # Cargar los modelos
-mdlRegLin = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F1/mdlRegLin.pkl')
-mdlSVM = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F2/mdlSVM.pkl')
-mdlRanFor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/mdlRanFor.pkl')
+@st.cache_resource
+def cargar_modelo_desde_github(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return joblib.load(BytesIO(response.content))
+    else:
+        st.error(f"No se pudo cargar desde GitHub: {url}")
+        return None
+        
+base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
 
-# Título de la app
+preprocessor = cargar_modelo_desde_github(base_url + "preprocessor.pkl")
+mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
+mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
+mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
+#mdlRegLin = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F1/mdlRegLin.pkl')
+#mdlSVM = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F2/mdlSVM.pkl')
+#mdlRanFor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/mdlRanFor.pkl')
+
 st.title('Predicción de SPEI12')
 
 # Elegir el modelo
 modelo_seleccionado = st.selectbox('Seleccionar el modelo a usar en la predicción:', ['Regresión lineal', 'SVM', 'Random Forest'])
 
 # Inputs para la predicción
-
 def fecha_sen_cos(X):
     X = X.copy()
     X['date'] = pd.to_datetime(X['DATA'], format='%b%Y')
@@ -36,16 +44,13 @@ def fecha_sen_cos(X):
 
 preprocessor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/preprocessor.pkl')  # Usa el path relativo o absoluto correcto
 
-# Selector de año y mes
 nombres_meses = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ]
 año = st.selectbox("Año", list(range(1954, 2035)), index=71)
 mes_nombre = st.selectbox("Mes", nombres_meses)
-#mes_numero = nombres_meses.index(mes_nombre) + 1
 
-# Inputs SPEI
 spei_inputs = []
 for i in range(1, 12):
     val = st.number_input(f'SPEI_{i}', format="%.3f")
@@ -72,7 +77,6 @@ st.write(X_transformado)
 
 # Botón para predecir
 if st.button('Predecir'):
-    # Realiza la transformación (esto debe estar ya hecho previamente)
     try:
         X_transformado = preprocessor.transform(df_input)
         
