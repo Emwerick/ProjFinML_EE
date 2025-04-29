@@ -17,7 +17,6 @@ def cargar_modelo_desde_github(url):
         
 base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
 
-preprocessor = cargar_modelo_desde_github(base_url + "preprocessor.pkl")
 mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
 mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
 mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
@@ -42,7 +41,8 @@ def fecha_sen_cos(X):
 
     return X[['month', 'month_sin', 'month_cos', 'year']]
 
-preprocessor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/preprocessor.pkl')  # Usa el path relativo o absoluto correcto
+preprocessor = cargar_modelo_desde_github(base_url + "preprocessor.pkl")
+#preprocessor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/preprocessor.pkl')  # Usa el path relativo o absoluto correcto
 
 nombres_meses = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
