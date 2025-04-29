@@ -17,9 +17,6 @@ def cargar_modelo_desde_github(url):
         
 base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
 
-mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
-mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
-mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
 #mdlRegLin = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F1/mdlRegLin.pkl')
 #mdlSVM = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F2/mdlSVM.pkl')
 #mdlRanFor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/mdlRanFor.pkl')
@@ -74,6 +71,10 @@ X_transformado = preprocessor.transform(df_input)
 
 st.subheader("Datos transformados")
 st.write(X_transformado)
+
+mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
+mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
+mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
 
 # Botón para predecir
 if st.button('Predecir'):
