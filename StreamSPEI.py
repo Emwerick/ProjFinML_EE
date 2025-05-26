@@ -7,7 +7,7 @@ import requests
 from io import BytesIO
 
 # URL base de GitHub donde están los modelos y preprocessor
-base_url = "https://raw.githubusercontent.com/usuario/repositorio/main/"  # Reemplaza con tu URL real
+base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"  # Reemplaza con tu URL real
 
 @st.cache_resource
 def cargar_modelo_desde_github(url):
