@@ -75,6 +75,7 @@ st.write(X_transformado)
 mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
 mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
 mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
+mdlRanFor = cargar_modelo_desde_github(base_url + "mdlBagging.pkl")
 
 # Botón para predecir
 if st.button('Predecir'):
