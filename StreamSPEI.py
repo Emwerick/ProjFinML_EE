@@ -5,9 +5,11 @@ import numpy as np
 import pandas as pd
 import requests
 from io import BytesIO
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 
-# URL base de GitHub donde están los modelos y preprocessor
-base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"  # Reemplaza con tu URL real
+# URL base de GitHub donde están los modelos
+base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"  # <-- REEMPLAZA esto con tu URL real
 
 @st.cache_resource
 def cargar_modelo_desde_github(url):
@@ -22,7 +24,27 @@ mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
 mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
 mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
 mdlBagging = cargar_modelo_desde_github(base_url + "mdlBagging.pkl")
-preprocessor = cargar_modelo_desde_github(base_url + "preprocessor.pkl")
+
+# Función de preprocesamiento
+def preprocesar_input(df):
+    df = df.copy()
+    df['date'] = pd.to_datetime(df['DATA'], format='%b%Y')
+    df['month'] = df['date'].dt.month
+    df['year'] = df['date'].dt.year
+    df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
+    df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
+
+    # Columnas SPEI
+    num_cols = [f"SPEI_{i}" for i in range(1, 12)]
+    num_data = df[num_cols].values
+    num_data = SimpleImputer(strategy="mean").fit_transform(num_data)
+    num_data = StandardScaler().fit_transform(num_data)
+
+    # Columnas de fecha transformadas
+    date_features = df[['month', 'month_sin', 'month_cos', 'year']].values
+    date_features = StandardScaler().fit_transform(date_features)
+
+    return np.hstack([num_data, date_features])
 
 # Título de la app
 st.title('Predicción de SPEI12')
@@ -45,8 +67,8 @@ for i in range(1, 12):
     val = st.number_input(f'SPEI_{i}', format="%.3f")
     spei_inputs.append(val)
 
+# Armar DataFrame de entrada
 data_str = f"{mes_nombre}{año}"
-
 input_dict = {'DATA': [data_str]}
 for i, val in zip(range(1, 12), spei_inputs):
     input_dict[f'SPEI_{i}'] = [val]
@@ -55,18 +77,13 @@ for i in range(1, 35):
 
 df_input = pd.DataFrame(input_dict)
 
-# Fecha en variables sen/cos + extracción de año/mes
-df_input['date'] = pd.to_datetime(df_input['DATA'], format='%b%Y')
-df_input['month'] = df_input['date'].dt.month
-df_input['year'] = df_input['date'].dt.year
-df_input['month_sin'] = np.sin(2 * np.pi * df_input['month'] / 12)
-df_input['month_cos'] = np.cos(2 * np.pi * df_input['month'] / 12)
-
+# Mostrar DataFrame original
 st.subheader("DataFrame de entrada estructurado")
 st.write(df_input)
 
+# Preprocesar entrada
 try:
-    X_transformado = preprocessor.transform(df_input)
+    X_transformado = preprocesar_input(df_input)
     st.subheader("Datos transformados")
     st.write(X_transformado)
 except Exception as e:
