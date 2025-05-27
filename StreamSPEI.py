@@ -1,99 +1,124 @@
-@@ -1,94 +1,95 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import joblib
-import requests
 import numpy as np
 import pandas as pd
-from io import BytesIO
+import plotly.graph_objects as go
+import dill
+import requests
+import io
 
-# Cargar los modelos
-@st.cache_resource
-def cargar_modelo_desde_github(url):
+st.set_page_config(page_title="Predicción SPEI12", layout="wide")
+
+# Función para cargar archivos desde GitHub raw
+def cargar_desde_github(url):
     response = requests.get(url)
-    if response.status_code == 200:
-        return joblib.load(BytesIO(response.content))
-    else:
-        st.error(f"No se pudo cargar desde GitHub: {url}")
-        return None
+    response.raise_for_status()
+    return io.BytesIO(response.content)
 
-base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
+# === URLs de GitHub raw ===
+URL_REG_LIN = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRegLin.pkl"
+URL_SVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlSVM.pkl"
+URL_RAN_FOR = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRanFor.pkl"
+URL_BAGGING = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlBagging.pkl"
+URL_PREPROCESSOR = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/preprocessor2.pkl"
+URL_PORTADA = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/Portada.png"
 
-mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
-mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
-mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
-#mdlRegLin = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F1/mdlRegLin.pkl')
-#mdlSVM = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F2/mdlSVM.pkl')
-#mdlRanFor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/mdlRanFor.pkl')
+# Cargar modelos desde GitHub
+mdlRegLin = joblib.load(cargar_desde_github(URL_REG_LIN))
+mdlSVM = joblib.load(cargar_desde_github(URL_SVM))
+mdlRanFor = joblib.load(cargar_desde_github(URL_RAN_FOR))
+mdlBagging = joblib.load(cargar_desde_github(URL_BAGGING))
 
-st.title('Predicción de SPEI12')
+# Cargar preprocesador
+with cargar_desde_github(URL_PREPROCESSOR) as f:
+    preprocessor = dill.load(f)
 
-# Elegir el modelo
-modelo_seleccionado = st.selectbox('Seleccionar el modelo a usar en la predicción:', ['Regresión lineal', 'SVM', 'Random Forest'])
+# Título y portada
+st.title("Predicción de SPEI12")
+st.image(URL_PORTADA, use_container_width=True)
 
-# Inputs para la predicción
-def fecha_sen_cos(X):
-    X = X.copy()
-    X['date'] = pd.to_datetime(X['DATA'], format='%b%Y')
-    X['month'] = X['date'].dt.month 
-    X['year'] = X['date'].dt.year
+with st.expander("Descripción del proyecto"):
+    st.markdown("""
+    El índice SPEI mide el nivel de sequía de una región específica. Se basa en la información disponible de las precipitaciones 
+    y temperatura. Combina características multiescalares junto con la habilidad de incorporar variabilidad de temperatura.
 
-    X['month_sin'] = np.sin(2 * np.pi * X['month'] / 12)
-    X['month_cos'] = np.cos(2 * np.pi * X['month'] / 12)
+    Esta aplicación predice el índice **SPEI12** para un mes y año específico, a partir de las observaciones del índice SPEI1 al SPEI11. 
+    Para realizar la predicción utiliza modelos previamente entrenados, incluyendo:
 
-    return X[['month', 'month_sin', 'month_cos', 'year']]
+    - Regresión Lineal
+    - SVM
+    - Random Forest
+    - Bagging con Regresión Lineal
 
-preprocessor = cargar_modelo_desde_github(base_url + "preprocessor.pkl")
-#preprocessor = joblib.load('C:/Users/erick/Documentos/Maestria UACH/Machine Learning/F3/preprocessor.pkl')  # Usa el path relativo o absoluto correcto
+    En la columna de la izquierda se debe ingresar la fecha deseada para la predicción, así como 
+    los valores observados de SPEI1 - SPEI11.
+    """)
 
-nombres_meses = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-]
-año = st.selectbox("Año", list(range(1954, 2035)), index=71)
-mes_nombre = st.selectbox("Mes", nombres_meses)
+# Barra lateral
+st.sidebar.header("Parámetros de entrada")
 
-spei_inputs = []
-for i in range(1, 12):
-    val = st.number_input(f'SPEI_{i}', format="%.3f")
-    spei_inputs.append(val)
+modelo_seleccionado = st.sidebar.selectbox(
+    'Modelo de predicción:',
+    ['Regresión lineal', 'SVM', 'Random Forest', 'Ensamble Bagging con regresión lineal']
+)
+
+nombres_meses = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+año = st.sidebar.selectbox("Año", list(range(1954, 2035)), index=71)
+mes_nombre = st.sidebar.selectbox("Mes", nombres_meses)
+
+spei_inputs = [st.sidebar.number_input(f'SPEI_{i}', format="%.3f") for i in range(1, 12)]
 
 data_str = f"{mes_nombre}{año}"
-
 input_dict = {'DATA': [data_str]}
-for i, val in zip(range(1, 12), spei_inputs):
-    input_dict[f'SPEI_{i}'] = [val]
-
-for i in range(1, 35):
-    input_dict[f'V{i}'] = [np.nan]
-
+input_dict.update({f'SPEI_{i}': [val] for i, val in zip(range(1, 12), spei_inputs)})
+input_dict.update({f'V{i}': [np.nan] for i in range(1, 35)})
 df_input = pd.DataFrame(input_dict)
 
-st.subheader("DataFrame de entrada estructurado")
-st.write(df_input)
+# Preprocesamiento
+try:
+    X_transformado = preprocessor.transform(df_input)
+except Exception as e:
+    st.error(f"Error en la transformación: {e}")
+    st.stop()
 
-X_transformado = preprocessor.transform(df_input)
-
-st.subheader("Datos transformados")
-st.write(X_transformado)
-
-mdlRegLin = cargar_modelo_desde_github(base_url + "mdlRegLin.pkl")
-mdlSVM = cargar_modelo_desde_github(base_url + "mdlSVM.pkl")
-mdlRanFor = cargar_modelo_desde_github(base_url + "mdlRanFor.pkl")
-
-# Botón para predecir
-if st.button('Predecir'):
+# Botón de predicción
+st.markdown("---")
+if st.button("Predecir SPEI12"):
     try:
-        X_transformado = preprocessor.transform(df_input)
-
-        # Selección del modelo
         if modelo_seleccionado == 'Regresión lineal':
             prediccion = mdlRegLin.predict(X_transformado)
         elif modelo_seleccionado == 'SVM':
             prediccion = mdlSVM.predict(X_transformado)
-        else:
+        elif modelo_seleccionado == 'Random Forest':
             prediccion = mdlRanFor.predict(X_transformado)
+        else:
+            prediccion = mdlBagging.predict(X_transformado)
 
-        st.success(f'La predicción es: {prediccion[0]:.3f}')
+        valor_predicho = float(prediccion[0])
+
+        # Gráfico
+        st.subheader("Visualización de datos de entrada")
+        etiquetas = [f'SPEI_{i}' for i in range(1, 12)] + ['SPEI_12 (Predicho)']
+        valores = spei_inputs + [valor_predicho]
+        colores = ['mediumseagreen'] * 11 + ['orange']
+
+        fig = go.Figure(data=[
+            go.Bar(x=etiquetas, y=valores, marker_color=colores)
+        ])
+        fig.update_layout(
+            title="Valores de SPEI (1-11) y Predicción de SPEI_12",
+            xaxis_title="Mes",
+            yaxis_title="Valor",
+            title_x=0.5,
+            shapes=[
+                dict(type="line", x0=-0.5, x1=len(etiquetas)-0.5, y0=0, y1=0,
+                     line=dict(color="gray", dash="dash"))
+            ]
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.success(f"Predicción del SPEI12: **{valor_predicho:.3f}**")
 
     except Exception as e:
-        st.error(f'Error en la predicción: {e}')
+        st.error(f"Error en la predicción: {e}")
