@@ -29,10 +29,10 @@ def cargar_imagen_desde_github(url):
     return response.content
 
 # URLs actualizadas (desde la raíz del repositorio principal)
-url_mdlRegLin = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRegLin.pkl"
-url_mdlSVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlSVM.pkl"
-url_mdlRanFor = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRanFor.pkl"
-url_mdlBagging = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlBagging.pkl"
+url_mdlRegLin = "https://github.com/Emwerick/ProjFinML_EE/releases/download/v1.0/mdlRegLin.pkl"
+url_mdlSVM = "https://github.com/Emwerick/ProjFinML_EE/releases/download/v1.0/mdlSVM.pkl
+url_mdlRanFor = "https://github.com/Emwerick/ProjFinML_EE/releases/download/v1.0/mdlRanFor.pkl"
+url_mdlBagging = "https://github.com/Emwerick/ProjFinML_EE/releases/download/v1.0/mdlBagging.pkl"
 url_imagen = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/Portada.png"
 
 # Cargar modelos
