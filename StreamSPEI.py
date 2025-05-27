@@ -13,8 +13,13 @@ import tempfile
 def cargar_modelo_desde_url(url):
     response = requests.get(url)
     response.raise_for_status()
+
+    if response.headers.get("Content-Type", "") not in ["application/octet-stream", "application/x-pickle"]:
+        raise ValueError("La URL no contiene un archivo .pkl válido")
+
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
         tmp_file.write(response.content)
+        tmp_file.flush()
         return joblib.load(tmp_file.name)
 
 # URLs de los modelos desde el branch main
