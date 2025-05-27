@@ -5,3 +5,4 @@ numpy>=1.23
 joblib>=1.2
 requests>=2.28
 plotly
+dill
