@@ -14,7 +14,7 @@ st.set_page_config(page_title="Predicción SPEI12", layout="wide")
 @st.cache_resource
 def cargar_modelo_desde_github(url):
     response = requests.get(url)
-    if response.status_code != 200 or len(response.content) < 1000:
+    if response.status_code != 200 or len(response.content) < 500:
         raise ValueError(f"Error al descargar modelo desde {url} - tamaño inesperado.")
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pkl") as tmp_file:
