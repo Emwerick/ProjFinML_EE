@@ -24,12 +24,12 @@ def cargar_imagen_desde_github(url):
     response = requests.get(url)
     return response.content
 
-# URLs de GitHub (reemplaza estas con tus URLs reales)
-url_mdlRegLin = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlRegLin.pkl"
-url_mdlSVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlSVM.pkl"
-url_mdlRanFor = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlRanFor.pkl"
-url_mdlBagging = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlBagging.pkl"
-url_imagen = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/Portada.png"
+# URLs actualizadas (desde la raíz del repositorio principal)
+url_mdlRegLin = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRegLin.pkl"
+url_mdlSVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlSVM.pkl"
+url_mdlRanFor = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlRanFor.pkl"
+url_mdlBagging = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/mdlBagging.pkl"
+url_imagen = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/Portada.png"
 
 # Cargar modelos
 mdlRegLin = cargar_modelo_desde_github(url_mdlRegLin)
@@ -112,9 +112,7 @@ except Exception as e:
     st.error(f"Error en la transformación: {e}")
     st.stop()
 
-# ------------------------------
 # BOTÓN DE PREDICCIÓN
-# ------------------------------
 st.markdown("---")
 if st.button("Predecir SPEI12"):
     try:
