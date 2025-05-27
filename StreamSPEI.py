@@ -17,8 +17,10 @@ def cargar_modelo_desde_url(url):
         tmp_file.write(response.content)
         return joblib.load(tmp_file.name)
 
+
+https://github.com/Emwerick/ProjFinML_EE/blob/main/mdlBagging.pkl
 # URLs de los modelos desde el branch main
-base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
+base_url = "https://raw.github.com/Emwerick/ProjFinML_EE/main/"
 url_mdlRegLin = base_url + "mdlRegLin.pkl"
 url_mdlSVM = base_url + "mdlSVM.pkl"
 url_mdlRanFor = base_url + "mdlRanFor.pkl"
