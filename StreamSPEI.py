@@ -7,7 +7,7 @@ import requests
 import tempfile
 
 # ---------------------------
-# Función para cargar desde GitHub
+# Función para cargar desde GitHub main
 # ---------------------------
 @st.cache_resource
 def cargar_modelo_desde_url(url):
@@ -17,8 +17,8 @@ def cargar_modelo_desde_url(url):
         tmp_file.write(response.content)
         return joblib.load(tmp_file.name)
 
-# URLs de los modelos
-base_url = "https://github.com/Emwerick/ProjFinML_EE/releases/download/v1.0/"
+# URLs de los modelos desde el branch main
+base_url = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/main/"
 url_mdlRegLin = base_url + "mdlRegLin.pkl"
 url_mdlSVM = base_url + "mdlSVM.pkl"
 url_mdlRanFor = base_url + "mdlRanFor.pkl"
