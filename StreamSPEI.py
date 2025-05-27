@@ -25,10 +25,10 @@ def cargar_imagen_desde_github(url):
     return response.content
 
 # URLs de GitHub (reemplaza estas con tus URLs reales)
-url_mdlRegLin = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/modelos/mdlRegLin.pkl"
-url_mdlSVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/modelos/mdlSVM.pkl"
-url_mdlRanFor = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/modelos/mdlRanFor.pkl"
-url_mdlBagging = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/modelos/mdlBagging.pkl"
+url_mdlRegLin = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlRegLin.pkl"
+url_mdlSVM = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlSVM.pkl"
+url_mdlRanFor = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlRanFor.pkl"
+url_mdlBagging = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/mdlBagging.pkl"
 url_imagen = "https://raw.githubusercontent.com/Emwerick/ProjFinML_EE/Portada.png"
 
 # Cargar modelos
